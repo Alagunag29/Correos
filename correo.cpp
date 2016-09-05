@@ -152,8 +152,9 @@ void llenarRegistro(){
 	time_t t, i;
 	char *correo, *contrasenia, *nombre, *fechaC;
 	string p;
-	
-	cout<<"Ingrese correo: "; getline(cin, p);
+	getline(cin, p); 
+	cout<<"Ingrese correo: ";
+   	getline(cin, p);
 	correo = strdup(p.c_str());
 	cout<<"Ingrese contraseña: "; getline(cin, p);
 	contrasenia = strdup(p.c_str());
@@ -179,28 +180,131 @@ void bandejaEntrada(char correo[20]){
 			cout<<"Enviado por: "<<r->correoEmisor<<endl;
 			cout<<"Asunto:  "<<r->mensajeEntrada<<endl;
 			cout<<"Enviado hace: "<<r->fechaEntrada;
+			cout<<"*********************************"<<endl;
 		}
 	}
+	cin.ignore(1024, '\n');
+	cin.get(); 
 }
 
 void bandejaSalida(char correo[20]){
 	BandejaSalida *r;
 	for(r=cabezaSalida; r!=NULL; r=r->siguiente){
-        cout<<"Enviado por: "<<r->correoReceptor <<endl;                                                     
-        cout<<"Asunto:  "<<r->mensajeEnviado <<endl;                                                       
-		cout<<"Enviado hace: "<<r->fechaEnvio;
+		if( strcmp(r->correoEmisor, correo) == 0  ){
+     		cout<<"Enviado a : "<<r->correoReceptor <<endl;                                                     
+        	cout<<"Asunto:  "<<r->mensajeEnviado <<endl;                                                       
+			cout<<"Enviado hace: "<<r->fechaEnvio;
+			cout<<"******************************"<<endl;
+		}
 	}
+	cin.ignore(1024, '\n');
+	cin.get(); 
+}
+void escrituraSalida(char correo[20], char usuario[20], char fecha[40], char mensaje[80]){
+	ofstream entrada;
+	entrada.open("salida.txt", ios::out|ios::app);
+	if(entrada.fail()){
+		cout<<"Error al abrir el archivo..."<<endl;
+		exit(1);
+	}
+	entrada<<correo<<endl;
+	entrada<<usuario<<endl;
+	entrada<<fecha<<endl;
+	entrada<<mensaje<<endl;
+	entrada.close();
 }
 
+void escrituraEntrada(char usuario[20], char correo[20], char fecha[40], char mensaje[80]){
+	ofstream entrada;
+	entrada.open("entrada.txt", ios::out|ios::app);
+	if(entrada.fail()){
+		cout<<"Error al abrir el archivo..."<<endl;
+		exit(1);
+	}
+	entrada<<usuario<<endl;
+	entrada<<correo<<endl;
+	entrada<<fecha<<endl;
+	entrada<<mensaje<<endl;
+	entrada.close();
+}
 
+void escrituraRegistro(char corr[20], char con[20], char nom[20], char fec[20]){
+	ofstream entrada;
+	entrada.open("registro.txt", ios::out|ios::app);
+	if(entrada.fail()){
+		cout<<"Error al abrir el archivo..."<<endl;
+		exit(1);	
+	}
+	entrada<<corr<<endl;
+	entrada<<con<<endl;
+	entrada<<nom<<endl;
+	entrada<<fec<<endl;
+
+	entrada.close();
+}
+
+void lecturaEntrada(){
+	char usuario[20], correo[20], fecha[40], mensaje[80];
+	ifstream salida;
+	salida.open("entrada.txt", ios::in);
+	if( salida.fail() ){
+		cout<<"Error al abrir el archivo"<<endl;
+		exit(1);
+	}
+
+	while( !salida.eof() ){
+		salida.getline(usuario, 20);
+		salida.getline(correo, 20);
+		salida.getline(fecha, 40);
+		salida.getline(mensaje, 80);
+		creacionBandejaEntrada(usuario, correo, fecha, mensaje);
+	}
+	salida.close();
+}
+
+void lecturaSalida(){
+	char correo[20], usuario[20], fecha[40], mensaje[80];
+	ifstream salida;
+	salida.open("salida.txt", ios::in);
+	if(salida.fail()){
+		cout<<"Error al abrir el archivo"<<endl;
+		exit(1);
+	}
+
+	while( !salida.eof() ){
+		salida.getline(correo, 20);
+		salida.getline(usuario, 20);
+		salida.getline(fecha, 40);
+		salida.getline(mensaje, 80);
+		creacionBandejaSalida(correo, usuario, fecha, mensaje);
+	}
+	salida.close();
+}
+
+void lecturaRegistro(){
+	char correo[20], contrasenia[20], nombre[40], fechaC[80];
+	ifstream salida;
+	salida.open("registro.txt", ios::in);
+	if(salida.fail()){
+		cout<<"Error al abrir el archivo"<<endl;
+		exit(1);
+	}	
+	while(!salida.eof()){
+		salida.getline(correo, 20);
+		salida.getline(contrasenia, 20);
+		salida.getline(nombre, 40);
+		salida.getline(fechaC, 80);
+		creacionRegistro(correo, contrasenia, nombre, fechaC);
+	}
+}
 
 void sesionIniciada(char correo[20], int opcion){
 	system("/usr/bin/clear");
 	time_t t, i;
 	char *mensaje, *usuario, *fecha;
-	cin>> opcion;
 	string p;
-	 if(opcion == 1){
+	if(opcion == 1){
+		getline(cin, p);
 		system("/usr/bin/clear");
 		cout<<"Ingrese correo"<<endl;
 		cout<<"Para: "; getline(cin, p);
@@ -212,6 +316,14 @@ void sesionIniciada(char correo[20], int opcion){
 		fecha = strdup(p.c_str());
 		if(busquedaRegistro(usuario)){
 			creacionBandejaSalida( correo, usuario, fecha, mensaje);	
+			escrituraSalida(correo, usuario, fecha, mensaje);
+			creacionBandejaEntrada(usuario, correo, fecha, mensaje);
+			escrituraEntrada(usuario, correo, fecha, mensaje);
+			cout<<"Enviando ...";
+			cin.ignore(1024, '\n');
+		}else{
+			cout<<"Correo no existente...";
+			cin.ignore(1024, '\n');
 		}
 	}else if(opcion == 2){
 		bandejaEntrada(correo);
@@ -219,11 +331,10 @@ void sesionIniciada(char correo[20], int opcion){
 		bandejaSalida(correo);
 	}else if(opcion == 4){
 		eliminarCuenta(correo);
-	}else if(opcion == 5){
-		cout<<"sesion finalizada";
+		cout<<"Cuenta eliminada...";
+		cin.ignore(1024, '\n');
 	}
 }
-
 
 using namespace std;
 int main(){
@@ -231,7 +342,9 @@ int main(){
 	setlocale(LC_CTYPE, "Spanish"); 
 	bool sw = true; int opcion;
 	char correo[20], contrasenia[20];
-
+	lecturaRegistro();
+	lecturaSalida();
+	lecturaEntrada();
 	while(sw){
   		menuPrincipal();
 		cin>>opcion;
@@ -243,14 +356,21 @@ int main(){
 			cout<<"Ingrese contraseña: ";
 			cin>>contrasenia;
 			if( busquedaRegistro(correo, contrasenia) ){
+				int opcion1;
 				while(true){
 					menuSesion();
-					cin>>opcion;
-					sesionIniciada(correo, opcion);
-					if(opcion == 5) break;
+					cin>>opcion1;
+					sesionIniciada(correo, opcion1);
+					if(opcion1 == 5){
+						cout<<"Sesion finalizada...";
+						break;	
+					}
 				}
+				cin.ignore(1024, '\n');
 			}else{
-				cout<<"Error usuario y contraseña no coinciden...";	
+				cout<<"Error usuario y contraseña no coinciden..."<<endl;
+				cin.ignore(1024, '\n');
+				cin.get();	
 			}
 			
 		}else if(opcion == 2){

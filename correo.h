@@ -21,6 +21,7 @@ void menuPrincipal(){
 }
 
 void menuSesion(){
+	system("/usr/bin/clear");
 	cout<<"**********************************"<<endl;
 	cout<<"******   Sesión iniciada    ******"<<endl;
 	cout<<"**********************************"<<endl;
