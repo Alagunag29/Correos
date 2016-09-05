@@ -246,11 +246,11 @@ void escrituraRegistro(char corr[20], char con[20], char nom[20], char fec[20]){
 void lecturaEntrada(){
 	char usuario[20], correo[20], fecha[40], mensaje[80];
 	ifstream salida;
-	salida.open("entrada.txt", ios::in);
+	salida.open("entrada.txt", ios::in);/*
 	if( salida.fail() ){
 		cout<<"Error al abrir el archivo"<<endl;
 		exit(1);
-	}
+	}*/
 
 	while( !salida.eof() ){
 		salida.getline(usuario, 20);
@@ -265,11 +265,11 @@ void lecturaEntrada(){
 void lecturaSalida(){
 	char correo[20], usuario[20], fecha[40], mensaje[80];
 	ifstream salida;
-	salida.open("salida.txt", ios::in);
+	salida.open("salida.txt", ios::in);/*
 	if(salida.fail()){
 		cout<<"Error al abrir el archivo"<<endl;
 		exit(1);
-	}
+	}*/
 
 	while( !salida.eof() ){
 		salida.getline(correo, 20);
@@ -284,11 +284,11 @@ void lecturaSalida(){
 void lecturaRegistro(){
 	char correo[20], contrasenia[20], nombre[40], fechaC[80];
 	ifstream salida;
-	salida.open("registro.txt", ios::in);
+	salida.open("registro.txt", ios::in);/*
 	if(salida.fail()){
 		cout<<"Error al abrir el archivo"<<endl;
 		exit(1);
-	}	
+	}	*/
 	while(!salida.eof()){
 		salida.getline(correo, 20);
 		salida.getline(contrasenia, 20);
